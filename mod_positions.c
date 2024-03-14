@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <httpd.h>
+#include "http_log.h"
 #include <http_protocol.h>
 #include <http_config.h>
 #include "ap_config.h"
@@ -17,18 +18,26 @@ static int positions_handler(request_rec *request) {
 		return HTTP_METHOD_NOT_ALLOWED;
 	}
 	
+	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "your_module is processing a request");
+	
 	// Assuming the base URL is /positions and we want to strip this from the request URI
 	const char *base_path = "/positions";
 	const char *request_path = request->uri;
 	// Check if  the request URI starts with the base path
 	if (strncmp(request_path, base_path, strlen(base_path)) == 0) {
 		// Adjust the pointer to skip the the base path
-		request_path += strlen(base_path); // TODO controlla che strlen(base_path) abbia un limite accettabile
+		request_path += strlen(base_path);
 	}
 	else {
 		// The request URI does not start with the expected base path
 		return HTTP_NOT_FOUND;
 	} 
+
+	// Check for directory traversal attempts
+    	if (strstr(request_path, "..") != NULL) {
+        	// Log the attempt, respond with an error, or handle as appropriate
+        	return HTTP_FORBIDDEN;
+    	}
 	
 	// At this point, request_path should contain the directory
 	request->content_type = "application/json";
@@ -91,16 +100,6 @@ static int positions_handler(request_rec *request) {
 	apr_dir_close(dir);
 	apr_pool_destroy(pool);
 	
-	/* ap_set_content_type(request, "text/html;charset=ascii");
-	ap_rputs("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\">\n", request);
-    ap_rputs("<html><head><title>Apache Positions Module</title></head>", request);
-    ap_rputs("<body><h1>Positions</h1>", request);
-    ap_rputs("<p>This is the Positions module!</p>", request);
-    ap_rputs("</body></html>", request);
-	*/
-	
-	// ap_rputs(request_path, request);
-
 	return OK;
 }
 

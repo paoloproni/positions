@@ -18,7 +18,9 @@ RUN bash -c 'echo -e "\nInclude conf/extra/positions.conf\n" >> /usr/local/apach
 COPY ./positions.conf /usr/local/apache2/conf/extra
 
 # Prepare the directories
-RUN mkdir -p /countries/regions/
+RUN mkdir -p /countries/italy/
+RUN mkdir -p /countries/italy/emilia-romagna
+RUN mkdir -p /countries/italy/trentino
 
 # Set the working directory
 WORKDIR /usr/src/apache_module

@@ -18,26 +18,29 @@ static int positions_handler(request_rec *request) {
 		return HTTP_METHOD_NOT_ALLOWED;
 	}
 	
-	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "your_module is processing a request");
+	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "positions is processing a request");
 	
 	// Assuming the base URL is /positions and we want to strip this from the request URI
 	const char *base_path = "/positions";
 	const char *request_path = request->uri;
-	// Check if  the request URI starts with the base path
+	// Check if  the request URI starts with the positions
 	if (strncmp(request_path, base_path, strlen(base_path)) == 0) {
+		ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "test positions ok");
 		// Adjust the pointer to skip the the base path
 		request_path += strlen(base_path);
+		// Now request_path does not contain /positions anymore
 	}
 	else {
 		// The request URI does not start with the expected base path
 		return HTTP_NOT_FOUND;
-	} 
+	}
 
 	// Check for directory traversal attempts
-    	if (strstr(request_path, "..") != NULL) {
-        	// Log the attempt, respond with an error, or handle as appropriate
-        	return HTTP_FORBIDDEN;
-    	}
+	if (strstr(request_path, "..") != NULL) {
+		// Log the attempt, respond with an error, or handle as appropriate
+		ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "The URL contains ..");
+		return HTTP_FORBIDDEN;
+	}
 	
 	// At this point, request_path should contain the directory
 	request->content_type = "application/json";
@@ -51,7 +54,10 @@ static int positions_handler(request_rec *request) {
 	apr_pool_create(&pool, request->pool);
 	
 	// Open the directory
-	rv = apr_dir_open(&dir, request_path, pool);
+	const char *base_real_path = "/tree";
+	const char *request_real_path = apr_pstrcat(request->pool, base_real_path, request_path, NULL);
+	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "request real path %s", request_real_path);
+	rv = apr_dir_open(&dir, request_real_path, pool);
 	if (rv != APR_SUCCESS) {
 		// Handle error
 		return HTTP_NOT_FOUND;

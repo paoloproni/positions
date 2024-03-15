@@ -15,21 +15,30 @@ RUN apt-get update && \
 # RUN bash -c 'echo -e "\nLoadModule positions_module modules/mod_positions.so\n<Location /positions>\n  SetHandler positions\n</Location>\n" >> /usr/local/apache2/conf/httpd.conf'
 
 RUN bash -c 'echo -e "\nInclude conf/extra/positions.conf\n" >> /usr/local/apache2/conf/httpd.conf'
+RUN bash -c 'echo -e "Include conf/extra/italiancaps.conf\n" >> /usr/local/apache2/conf/httpd.conf'
+
 COPY ./positions.conf /usr/local/apache2/conf/extra
+COPY ./italiancaps.conf /usr/local/apache2/conf/extra
+COPY ./index.html /usr/local/apache2/htdocs
 
 # Prepare the directories
-RUN mkdir -p /countries/italy/
-RUN mkdir -p /countries/italy/emilia-romagna
-RUN mkdir -p /countries/italy/trentino
+RUN mkdir -p /tree/italy/
+RUN mkdir -p /tree/italy/emilia-romagna
+RUN mkdir -p /tree/italy/emilia-romagna/raravenna/russi/48026
+RUN mkdir -p /tree/italy/trentino
+RUN mkdir -p /cap
+RUN ln -s /tree/italy/emilia-romagna/raravenna/russi /cap/48026
 
 # Set the working directory
 WORKDIR /usr/src/apache_module
 
 # Copy your Apache module source code into the container
 COPY ./mod_positions.c .
+COPY ./mod_italiancaps.c .
 
 # Compile and install your Apache module -i install -c compile -n modulename
 RUN apxs -i -c -n positions mod_positions.c
+RUN apxs -i -c -n italiancaps mod_italiancaps.c
 
 # Start Apache
 CMD ["httpd", "-D", "FOREGROUND"]

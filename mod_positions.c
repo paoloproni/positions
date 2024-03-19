@@ -25,7 +25,6 @@ static int positions_handler(request_rec *request) {
 	const char *request_path = request->uri;
 	// Check if  the request URI starts with the positions
 	if (strncmp(request_path, base_path, strlen(base_path)) == 0) {
-		ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "test positions ok");
 		// Adjust the pointer to skip the the base path
 		request_path += strlen(base_path);
 		// Now request_path does not contain /positions anymore

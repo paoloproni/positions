@@ -89,8 +89,10 @@ static int tree_handler(request_rec *request) {
 	
 	// Convert the JSON object to a string
 	const char *response_str = json_object_to_json_string_ext(response_jobj, JSON_C_TO_STRING_PRETTY);
+	int response_len = strlen(response_str); // Calculate the length of the response string
 	
 	ap_set_content_type(request, "application/json");
+	ap_set_content_length(request, response_len);
 	ap_rputs(response_str, request);
 	
 	json_object_put(response_jobj); // Free the JSON object

@@ -12,6 +12,7 @@
 #include "apr_file_io.h"
 #include "apr_errno.h"
 #include <json-c/json.h>
+#include "config.h"
 
 // Prototype for the directory traversal function
 static void traverse_directory(apr_pool_t *pool, json_object *jobj, const char *path, const char *prefix, const request_rec *request);
@@ -60,7 +61,7 @@ static int tree_handler(request_rec *request) {
 	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "tree is processing a request");
 	
 	// Assuming the base URL is /positions and we want to strip this from the request URI
-	const char *base_path = "/tree";
+	const char *base_path = BASE_PATH;
 	const char *request_tree = request->uri;
 	// Check if  the request URI starts with the positions
 	if (strncmp(request_tree, base_path, strlen(base_path)) == 0) {
@@ -89,10 +90,8 @@ static int tree_handler(request_rec *request) {
 	
 	// Convert the JSON object to a string
 	const char *response_str = json_object_to_json_string_ext(response_jobj, JSON_C_TO_STRING_PRETTY);
-	int response_len = strlen(response_str); // Calculate the length of the response string
 	
 	ap_set_content_type(request, "application/json");
-	ap_set_content_length(request, response_len);
 	ap_rputs(response_str, request);
 	
 	json_object_put(response_jobj); // Free the JSON object

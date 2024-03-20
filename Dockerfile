@@ -49,6 +49,7 @@ COPY ./index.html /var/www/html
 WORKDIR /usr/src/apache_module
 
 # Copy your Apache module source code into the container
+COPY ./config.h .
 COPY ./mod_positions.c .
 COPY ./mod_italiancaps.c .
 COPY ./mod_tree.c .

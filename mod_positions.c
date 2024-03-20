@@ -8,6 +8,7 @@
 #include "ap_config.h"
 #include "apr_buckets.h"
 #include "apr_strings.h"
+#include "config.h"
 
 static int positions_handler(request_rec *request) {
 	if (!request->handler || strcmp(request->handler, "positions")) {
@@ -53,7 +54,7 @@ static int positions_handler(request_rec *request) {
 	apr_pool_create(&pool, request->pool);
 	
 	// Open the directory
-	const char *base_real_path = "/tree";
+	const char *base_real_path = BASE_PATH;
 	const char *request_real_path = apr_pstrcat(request->pool, base_real_path, request_path, NULL);
 	ap_log_rerror(__FILE__, __LINE__, APLOG_MODULE_INDEX, APLOG_NOTICE, APR_SUCCESS, request, "request real path %s", request_real_path);
 	rv = apr_dir_open(&dir, request_real_path, pool);
